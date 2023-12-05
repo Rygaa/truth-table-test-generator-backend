@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id
+  username  String
+  password  String
+  jwtokens  Json
+  types     type[]
+  projects  project[] // Each User can have multiple projects
+}
+
+model type {
+  id      String @id
+  value   String @default("")
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model condition {
+  id         String  @id
+  value      String  @default("")
+  key      String  @default("")
+  projectId  String  // This field links back to the 'project' model
+  project    project @relation(fields: [projectId], references: [id]) // This establishes the relation to the 'project' model
+}
+
+model project {
+  id          String      @id
+  userId      String      // This field links back to the 'User' model
+  name      String      // This field links back to the 'User' model
+  user        User        @relation(fields: [userId], references: [id]) // This establishes the relation and back-reference to the 'User' model
+  conditions  condition[] // Each project can have multiple conditions
+}
